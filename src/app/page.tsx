@@ -833,7 +833,7 @@ export default function Home() {
 
   return (
     <div className="mobile-frame-wrapper" style={{ margin: "auto" }}>
-      <div className="app-container">
+      <div className={`app-container${currentView === "view-home" ? " home-theme" : ""}`}>
         {/* Core Header */}
         <Header
           streak={streak}
