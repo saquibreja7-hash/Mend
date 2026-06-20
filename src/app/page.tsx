@@ -33,7 +33,7 @@ import { triggerHaptic } from "@/utils/haptics";
 import { safeGetItem, safeSetItem, safeRemoveItem, safeJsonParse } from "@/utils/storage";
 import { clearVoiceDB } from "@/utils/voiceDB";
 import { pushAllToFirestore, pullFromFirestore } from "@/utils/firebaseSync";
-import { onUserChanged } from "@/lib/firebase";
+import { onUserChanged, handleRedirectResult } from "@/lib/firebase";
 import { User } from "firebase/auth";
 
 const MOOD_OPTIONS = [
@@ -267,6 +267,9 @@ export default function Home() {
 
   // isHydrated gates the push effect — ensures pull completes before any push fires
   const [isHydrated, setIsHydrated] = useState(false);
+
+  // Resolve any pending Google redirect on first load
+  useEffect(() => { handleRedirectResult(); }, []);
 
   // Subscribe to Firebase auth state + pull on every auth change.
   // Running pull here (not on mount) means it fires correctly when:

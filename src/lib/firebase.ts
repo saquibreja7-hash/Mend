@@ -5,8 +5,9 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
-  linkWithPopup,
+  signInWithRedirect,
+  linkWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   User,
 } from "firebase/auth";
@@ -46,28 +47,33 @@ export function onUserChanged(cb: (user: User | null) => void) {
   return onAuthStateChanged(auth, cb);
 }
 
-// Upgrade anonymous account to Google — preserves all data
-export async function signInWithGoogle(): Promise<User> {
+// Upgrade anonymous account to Google — preserves all data.
+// Uses redirect (not popup) so it works reliably on mobile/PWA.
+// The page navigates away; auth state is resolved on return via handleRedirectResult.
+export async function signInWithGoogle(): Promise<void> {
   const current = auth.currentUser;
   if (current?.isAnonymous) {
-    // Link anonymous session to Google account so data is preserved
-    try {
-      const result = await linkWithPopup(current, googleProvider);
-      return result.user;
-    } catch (err: unknown) {
-      // If Google account already exists, sign in directly
-      if (
-        err instanceof Error &&
-        (err as { code?: string }).code === "auth/credential-already-in-use"
-      ) {
-        const result = await signInWithPopup(auth, googleProvider);
-        return result.user;
-      }
-      throw err;
-    }
+    await linkWithRedirect(current, googleProvider);
+  } else {
+    await signInWithRedirect(auth, googleProvider);
   }
-  const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
+}
+
+// Call once on app mount to resolve any pending Google redirect.
+// Handles the credential-already-in-use case (Google account linked to
+// a different Firebase UID) by falling back to a direct sign-in redirect.
+export async function handleRedirectResult(): Promise<void> {
+  try {
+    await getRedirectResult(auth);
+    // onAuthStateChanged will fire automatically with the new user
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code;
+    if (code === "auth/credential-already-in-use") {
+      // Linked to a different account — sign in directly on next redirect
+      await signInWithRedirect(auth, googleProvider);
+    }
+    // Other errors (network, cancelled) are silently ignored
+  }
 }
 
 export async function signOut(): Promise<void> {
