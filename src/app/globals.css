@@ -216,10 +216,10 @@ input, textarea, button, select {
    APP CONTENT
    ══════════════════════════════════════════ */
 .app-content {
-  flex-grow: 1; 
+  flex-grow: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
-  padding: 16px 16px 90px;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px calc(90px + env(safe-area-inset-bottom));
   scrollbar-width: none;
 }
 .app-content::-webkit-scrollbar { display: none; }
@@ -1036,11 +1036,13 @@ input[type="datetime-local"]#nc-start-date::-webkit-calendar-picker-indicator {
    BOTTOM NAV
    ══════════════════════════════════════════ */
 .app-nav {
-  position: absolute; bottom: 0; left: 0; width: 100%;
-  height: 72px; display: flex;
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  display: flex;
   background: #f9f7f3;
   border-top: 1px solid rgba(32, 32, 32, 0.12);
   padding: 5px 8px 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
   z-index: 100;
 }
 .nav-item {
