@@ -7,8 +7,8 @@ const techniques = {
     name: "Box Breathing",
     desc: "<strong>Box Breathing</strong> — Used by Navy SEALs. Inhale 4s, Hold 4s, Exhale 4s, Hold 4s. Resets the autonomic nervous system.",
     phases: [
-      { text: "Breathe In...", duration: 4, scale: "scale(1.4)", bg: "rgba(255, 117, 140, 0.2)", shadow: "0 0 45px rgba(255, 117, 140, 0.4)" },
-      { text: "Hold Breath...", duration: 4, scale: "scale(1.4)", bg: "rgba(138, 43, 226, 0.2)", shadow: "0 0 45px rgba(138, 43, 226, 0.4)" },
+      { text: "Breathe In...", duration: 4, scale: "scale(1.4)", bg: "rgba(234, 40, 4, 0.2)", shadow: "0 0 45px rgba(234, 40, 4, 0.4)" },
+      { text: "Hold Breath...", duration: 4, scale: "scale(1.4)", bg: "rgba(32, 32, 32, 0.2)", shadow: "0 0 45px rgba(32, 32, 32, 0.4)" },
       { text: "Exhale Slow...", duration: 4, scale: "scale(1.0)", bg: "rgba(6, 182, 212, 0.2)", shadow: "0 0 25px rgba(6, 182, 212, 0.3)" },
       { text: "Hold Empty...", duration: 4, scale: "scale(1.0)", bg: "rgba(14, 10, 33, 0.3)", shadow: "0 0 15px rgba(255, 255, 255, 0.05)" }
     ]
@@ -17,8 +17,8 @@ const techniques = {
     name: "4-7-8 Breathing",
     desc: "<strong>4-7-8 Breathing</strong> — Dr. Andrew Weil's clinical standard. Inhale 4s, Hold 7s, Exhale 8s. Powerful natural tranquilizer for the nervous system.",
     phases: [
-      { text: "Breathe In...", duration: 4, scale: "scale(1.4)", bg: "rgba(255, 117, 140, 0.2)", shadow: "0 0 45px rgba(255, 117, 140, 0.4)" },
-      { text: "Hold Breath...", duration: 7, scale: "scale(1.4)", bg: "rgba(138, 43, 226, 0.2)", shadow: "0 0 45px rgba(138, 43, 226, 0.4)" },
+      { text: "Breathe In...", duration: 4, scale: "scale(1.4)", bg: "rgba(234, 40, 4, 0.2)", shadow: "0 0 45px rgba(234, 40, 4, 0.4)" },
+      { text: "Hold Breath...", duration: 7, scale: "scale(1.4)", bg: "rgba(32, 32, 32, 0.2)", shadow: "0 0 45px rgba(32, 32, 32, 0.4)" },
       { text: "Exhale Slow...", duration: 8, scale: "scale(1.0)", bg: "rgba(6, 182, 212, 0.2)", shadow: "0 0 25px rgba(6, 182, 212, 0.3)" }
     ]
   },
@@ -26,7 +26,7 @@ const techniques = {
     name: "Physiological Sigh",
     desc: "<strong>Physiological Sigh</strong> — Fastest behavioral way to reduce autonomic arousal in real-time. Double inhale (long-short) 2s, Exhale 6s. Repeat 3 times.",
     phases: [
-      { text: "Double Inhale...", duration: 2, scale: "scale(1.4)", bg: "rgba(255, 117, 140, 0.2)", shadow: "0 0 45px rgba(255, 117, 140, 0.4)" },
+      { text: "Double Inhale...", duration: 2, scale: "scale(1.4)", bg: "rgba(234, 40, 4, 0.2)", shadow: "0 0 45px rgba(234, 40, 4, 0.4)" },
       { text: "Exhale Long...", duration: 6, scale: "scale(1.0)", bg: "rgba(6, 182, 212, 0.2)", shadow: "0 0 25px rgba(6, 182, 212, 0.3)" }
     ]
   }
@@ -169,8 +169,8 @@ export default function BreathingGuide() {
             id="breathing-circle"
             style={{
               transform: isBreathing ? activePhase.scale : "scale(1.0)",
-              backgroundColor: isBreathing ? activePhase.bg : "rgba(138, 43, 226, 0.1)",
-              boxShadow: isBreathing ? activePhase.shadow : "0 0 40px rgba(138, 43, 226, 0.2)",
+              backgroundColor: isBreathing ? activePhase.bg : "rgba(32, 32, 32, 0.1)",
+              boxShadow: isBreathing ? activePhase.shadow : "0 0 40px rgba(32, 32, 32, 0.2)",
               transition: "transform 1s linear, background-color 0.8s ease, box-shadow 0.8s ease",
             }}
           >

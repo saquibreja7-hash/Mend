@@ -80,8 +80,8 @@ export default function RecoveryDashboard({
 
   return (
     <div style={{
-      background: "linear-gradient(135deg, rgba(79,70,229,0.04), rgba(255,117,140,0.03))",
-      border: "1px solid rgba(79,70,229,0.12)",
+      background: "rgba(32, 32, 32, 0.03)",
+      border: "1px solid rgba(32, 32, 32, 0.12)",
       borderRadius: "22px",
       padding: "20px",
       display: "flex",

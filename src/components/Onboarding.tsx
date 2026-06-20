@@ -137,7 +137,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 width: idx === currentSlide ? "24px" : "8px",
                 height: "8px",
                 borderRadius: "4px",
-                background: idx === currentSlide ? "var(--purple)" : "var(--border)",
+                background: idx === currentSlide ? "#202020" : "var(--border)",
                 transition: "all 0.3s ease",
               }}
             />

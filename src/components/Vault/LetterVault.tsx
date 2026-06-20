@@ -42,8 +42,8 @@ export default function LetterVault({ letters, onSaveLetter, onDeleteLetter }: L
     <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
       {/* Intro */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(255,117,140,0.05), rgba(138,43,226,0.04))",
-        border: "1px solid rgba(255,117,140,0.15)",
+        background: "rgba(234, 40, 4, 0.03)",
+        border: "1px solid rgba(234, 40, 4, 0.12)",
         borderRadius: "18px",
         padding: "16px",
       }}>
@@ -69,9 +69,9 @@ export default function LetterVault({ letters, onSaveLetter, onDeleteLetter }: L
               style={{
                 padding: "10px 8px",
                 borderRadius: "12px",
-                border: `1px solid ${category === cat.id ? "rgba(255,117,140,0.4)" : "var(--border)"}`,
-                background: category === cat.id ? "rgba(255,117,140,0.08)" : "rgba(0,0,0,0.02)",
-                color: category === cat.id ? "var(--pink)" : "var(--text-secondary)",
+                border: `1px solid ${category === cat.id ? "rgba(234,40,4,0.4)" : "var(--border)"}`,
+                background: category === cat.id ? "rgba(234,40,4,0.08)" : "rgba(0,0,0,0.02)",
+                color: category === cat.id ? "#ea2804" : "var(--text-secondary)",
                 fontWeight: 600,
                 fontSize: "0.74rem",
                 cursor: "pointer",
@@ -140,7 +140,7 @@ export default function LetterVault({ letters, onSaveLetter, onDeleteLetter }: L
                   style={{
                     background: "var(--bg-surface)",
                     border: "1px solid var(--border)",
-                    borderLeft: `3px solid var(--pink)`,
+                    borderLeft: `3px solid #ea2804`,
                     borderRadius: "14px",
                     padding: "14px",
                     animation: "list-slide 0.3s ease",
@@ -152,7 +152,7 @@ export default function LetterVault({ letters, onSaveLetter, onDeleteLetter }: L
                       <span style={{
                         fontSize: "0.7rem",
                         fontWeight: 600,
-                        color: "var(--pink)",
+                        color: "#ea2804",
                         textTransform: "uppercase",
                         letterSpacing: "0.3px",
                       }}>

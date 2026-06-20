@@ -1,17 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500", "600"],
   variable: "--font-inter",
 });
 
-const outfit = Outfit({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-outfit",
+  weight: ["400", "600", "700", "800"],
+  variable: "--font-display",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +46,7 @@ export const viewport: Viewport = {
   initialScale: 1.0,
   maximumScale: 1.0,
   userScalable: false,
-  themeColor: "#4f46e5",
+  themeColor: "#f9f7f3",
 };
 
 export default function RootLayout({
@@ -49,7 +55,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable}`}>
       <body>
         {children}
         <canvas id="confetti-canvas"></canvas>

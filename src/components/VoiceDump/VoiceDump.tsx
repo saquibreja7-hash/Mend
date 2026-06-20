@@ -182,8 +182,8 @@ export default function VoiceDump({ entries, onSaveEntry, onDeleteEntry }: Voice
     <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
       {/* Header */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(79,70,229,0.05), rgba(138,43,226,0.04))",
-        border: "1px solid rgba(79,70,229,0.12)",
+        background: "rgba(32, 32, 32, 0.03)",
+        border: "1px solid rgba(32, 32, 32, 0.12)",
         borderRadius: "18px",
         padding: "16px",
       }}>
@@ -223,15 +223,15 @@ export default function VoiceDump({ entries, onSaveEntry, onDeleteEntry }: Voice
             borderRadius: "50%",
             border: "none",
             background: isRecording
-              ? "linear-gradient(135deg, #ff416c, #ff4b2b)"
-              : "linear-gradient(135deg, var(--pink), var(--purple))",
+              ? "linear-gradient(135deg, #c01f00, #ea2804)"
+              : "#ea2804",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             boxShadow: isRecording
-              ? "0 0 30px rgba(255,65,108,0.4)"
-              : "0 8px 24px rgba(255,117,140,0.25)",
+              ? "0 0 30px rgba(234,40,4,0.4)"
+              : "0 8px 24px rgba(234,40,4,0.25)",
             animation: isRecording ? "glow-pulse 1.5s ease-in-out infinite" : "none",
             transition: "all 0.3s var(--ease-bounce)",
           }}
@@ -289,7 +289,7 @@ export default function VoiceDump({ entries, onSaveEntry, onDeleteEntry }: Voice
                 key={entry.id}
                 style={{
                   background: "var(--bg-surface)",
-                  border: `1px solid ${playingId === entry.id ? "rgba(79,70,229,0.25)" : "var(--border)"}`,
+                  border: `1px solid ${playingId === entry.id ? "rgba(234,40,4,0.25)" : "var(--border)"}`,
                   borderRadius: "14px",
                   padding: "14px",
                   display: "flex",
@@ -308,9 +308,9 @@ export default function VoiceDump({ entries, onSaveEntry, onDeleteEntry }: Voice
                     borderRadius: "50%",
                     border: "none",
                     background: playingId === entry.id
-                      ? "rgba(79,70,229,0.15)"
+                      ? "rgba(234,40,4,0.12)"
                       : "rgba(0,0,0,0.04)",
-                    color: playingId === entry.id ? "var(--indigo)" : "var(--text-secondary)",
+                    color: playingId === entry.id ? "#ea2804" : "var(--text-secondary)",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",

@@ -428,7 +428,7 @@ export default function Home() {
     canvas.height = window.innerHeight;
 
     let particlesList: any[] = [];
-    const colors = ["#ff758c", "#ff7eb3", "#8b5cf6", "#10b981", "#f59e0b", "#06b6d4"];
+    const colors = ["#ea2804", "#c01f00", "#202020", "#2b9a66", "#f59e0b", "#06b6d4"];
 
     for (let i = 0; i < 80; i++) {
       particlesList.push({
@@ -479,9 +479,9 @@ export default function Home() {
   const handleGlowHeaderBar = () => {
     const fill = document.getElementById("healing-bar");
     if (fill) {
-      fill.style.boxShadow = "0 0 25px #ff758c";
+      fill.style.boxShadow = "0 0 25px #ea2804";
       setTimeout(() => {
-        fill.style.boxShadow = "0 0 10px #ff758c";
+        fill.style.boxShadow = "0 0 10px #ea2804";
       }, 1500);
     }
   };
