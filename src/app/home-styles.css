@@ -1,8 +1,340 @@
-/* ══ HOME DASHBOARD ══ */
+/* ══════════════════════════════════════════
+   MEND HOME — Sketch / Hand-drawn Aesthetic
+   ══════════════════════════════════════════ */
 
-.home-greeting {
-  padding: 4px 0 18px;
+/* ── Progress Bar ── */
+.home-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+.home-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.home-progress-label {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #1c1917;
+}
+.home-progress-pct {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+.home-progress-track {
+  width: 100%;
+  height: 14px;
+  border: 1.5px solid #1c1917;
+  border-radius: 3px;
+  background: #f5f0e8;
+  overflow: hidden;
+  position: relative;
+}
+.home-progress-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #1c1917,
+    #1c1917 2px,
+    transparent 2px,
+    transparent 6px
+  );
+  transition: width 0.9s ease;
+  border-right: 1.5px solid #1c1917;
+}
+
+/* ── Hero Quote Section ── */
+.home-hero {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 110px;
+}
+.home-hero-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.home-hero-quote {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #1c1917;
+}
+.home-hero-sub {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #6b6258;
+  line-height: 1.5;
+}
+.home-hero-illo {
+  flex-shrink: 0;
+  width: 100px;
+  opacity: 0.85;
+}
+
+/* ── Today's Snapshot ── */
+.home-snapshot-card {
+  border: 1.5px solid #c8c0b0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.home-snapshot-title {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #1c1917;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid #c8c0b0;
+  background: #f5f0e8;
+}
+.home-snapshot-cols {
+  display: flex;
+}
+.home-snapshot-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-right: 1px solid #c8c0b0;
+  background: #faf8f4;
+}
+.home-snapshot-col:last-child {
+  border-right: none;
+}
+.home-snapshot-icon {
+  color: #1c1917;
+  opacity: 0.7;
+}
+.home-snapshot-num {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #1c1917;
+}
+.home-snapshot-lbl {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #6b6258;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ── Where Do You Want To Go ── */
+.home-section-heading {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #1c1917;
+  margin-bottom: 8px;
+}
+.home-nav-tiles {
+  display: flex;
+  gap: 8px;
+}
+.home-nav-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border: 1.5px solid #c8c0b0;
+  border-radius: 12px;
+  background: #faf8f4;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.home-nav-tile:hover {
+  background: #f0ede6;
+  border-color: #1c1917;
+}
+.home-nav-tile:active {
+  transform: scale(0.95);
+}
+.home-nav-tile-icon {
+  color: #1c1917;
+}
+.home-nav-tile-lbl {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #1c1917;
+  text-align: center;
+}
+
+/* ── Daily Intention ── */
+.home-intention-card {
+  border: 1.5px solid #c8c0b0;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.home-intention-inner {
+  display: flex;
+  gap: 0;
+  padding: 14px;
+  background: #faf8f4;
+}
+.home-intention-text-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 12px;
+}
+.home-intention-label {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6b6258;
+}
+.home-intention-quote {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1c1917;
+}
+.home-intention-placeholder {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1rem;
+  color: #a89e93;
+  font-style: italic;
+}
+.home-intention-divider {
+  height: 1px;
+  background: #c8c0b0;
+  margin: 0 14px;
+}
+.home-intention-footer {
+  padding: 10px 14px;
+  background: #faf8f4;
+}
+.home-intention-set-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.5px;
+  color: #1c1917;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.home-intention-set-btn:hover {
+  color: #6b6258;
+}
+.home-intention-illo {
+  flex-shrink: 0;
+  width: 60px;
+  opacity: 0.75;
+  align-self: flex-end;
+}
+
+/* Intention edit input */
+.home-intention-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid #1c1917;
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1.1rem;
+  color: #1c1917;
+  padding: 4px 0;
+  outline: none;
+  margin-top: 4px;
+}
+.home-intention-input::placeholder {
+  color: #a89e93;
+}
+
+/* ── Quick Tools ── */
+.home-quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.home-quick-card {
+  border: 1.5px solid #c8c0b0;
+  border-radius: 12px;
+  padding: 14px;
+  background: #faf8f4;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  text-align: left;
+}
+.home-quick-card:hover {
+  background: #f0ede6;
+  border-color: #1c1917;
+}
+.home-quick-card:active {
+  transform: scale(0.97);
+}
+.home-quick-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.home-quick-card-icon {
+  color: #1c1917;
+}
+.home-quick-card-arrow {
+  font-size: 0.85rem;
+  color: #a89e93;
+}
+.home-quick-card-title {
+  font-family: var(--font-sketch), 'Caveat', cursive;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1c1917;
+  line-height: 1.15;
+}
+.home-quick-card-sub {
+  font-family: var(--font-space-mono), 'Space Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #6b6258;
+}
+
+/* ── Home section wrapper ── */
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Retain legacy home styles that other views may reference ── */
+.home-greeting { padding: 4px 0 2px; }
 .greeting-name {
   font-family: var(--font-head);
   font-size: 1.6rem; font-weight: 800;
@@ -13,7 +345,6 @@
   font-size: 0.85rem; color: #8a8a8a;
   margin-top: 6px; line-height: 1.5;
 }
-
 .home-section-title {
   font-family: var(--font-head);
   font-size: 0.95rem; font-weight: 700;
@@ -24,135 +355,4 @@
   margin-top: 2px; margin-bottom: 12px;
 }
 
-/* Mood chips */
-.mood-section { display: flex; flex-direction: column; }
-.mood-chips-row {
-  display: flex; gap: 8px;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; padding-bottom: 4px;
-}
-.mood-chips-row::-webkit-scrollbar { display: none; }
-.mood-chip {
-  flex-shrink: 0;
-  padding: 9px 14px; border-radius: 9999px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.7);
-  font-size: 0.82rem; font-weight: 600;
-  color: var(--text-secondary); cursor: pointer;
-  transition: var(--tr); min-height: 40px;
-  display: flex; align-items: center; gap: 5px;
-}
-.mood-chip:hover {
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--text-primary);
-  border-color: rgba(234, 40, 4, 0.2);
-}
-.mood-chip.active {
-  background: var(--pink); color: white;
-  border-color: var(--pink);
-  box-shadow: 0 2px 12px rgba(234, 40, 4, 0.22);
-}
-
-/* Focus card */
-.focus-card {
-  background: var(--text-primary);
-  border-radius: 22px; padding: 22px;
-  display: flex; flex-direction: column; gap: 10px;
-  color: white;
-}
-.focus-badge {
-  background: var(--pink);
-  border-radius: 9999px; padding: 4px 10px;
-  font-size: 0.65rem; font-weight: 700;
-  letter-spacing: 0.8px; text-transform: uppercase;
-  align-self: flex-start; color: white;
-}
-.focus-headline {
-  font-family: var(--font-head);
-  font-size: 1.35rem; font-weight: 800;
-  line-height: 1.2; letter-spacing: -0.3px;
-}
-.focus-nc-days {
-  font-size: 0.75rem; font-weight: 600;
-  opacity: 0.45; text-transform: uppercase; letter-spacing: 0.8px;
-}
-.focus-sub {
-  font-size: 0.82rem; opacity: 0.65; line-height: 1.5;
-}
-.focus-cta {
-  background: var(--pink); color: white;
-  border: none; border-radius: 9999px;
-  padding: 12px 20px; font-size: 0.85rem; font-weight: 600;
-  cursor: pointer; align-self: flex-start;
-  display: flex; align-items: center; gap: 8px;
-  transition: all 0.25s var(--ease-smooth);
-  margin-top: 4px;
-}
-.focus-cta:hover { background: var(--amber); }
-.focus-cta:active { transform: scale(0.96); }
-
-/* Quick journal tap */
-.quick-journal-tap {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--border); border-radius: 16px;
-  padding: 16px; cursor: pointer;
-  transition: var(--tr); text-align: left; width: 100%;
-}
-.quick-journal-tap:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(234, 40, 4, 0.2);
-}
-.quick-journal-placeholder {
-  flex-grow: 1; color: var(--text-muted); font-size: 0.9rem;
-}
-.quick-journal-arrow {
-  color: var(--text-muted); font-size: 1.1rem; flex-shrink: 0;
-}
-
-/* Journey section */
-.journey-section { display: flex; flex-direction: column; gap: 10px; }
-.journey-header {
-  display: flex; justify-content: space-between; align-items: flex-start;
-}
-.journey-view-all {
-  background: transparent; border: none;
-  font-size: 0.8rem; font-weight: 600;
-  color: var(--pink); cursor: pointer;
-  padding: 0; transition: var(--tr); margin-top: 2px;
-}
-.journey-view-all:hover { opacity: 0.7; }
-.journey-grid {
-  display: flex; gap: 5px;
-}
-.journey-square {
-  flex: 1; height: 28px;
-  border-radius: 5px;
-  background: rgba(0, 0, 0, 0.05);
-  transition: background 0.3s ease;
-}
-.journey-square.active { background: rgba(234, 40, 4, 0.22); }
-.journey-square.today {
-  background: var(--pink);
-  box-shadow: 0 0 8px rgba(234, 40, 4, 0.3);
-}
-.journey-labels {
-  display: flex; justify-content: space-between;
-  font-size: 0.65rem; color: #9a9a9a; letter-spacing: 0.2px;
-}
-.journey-labels span:last-child {
-  color: var(--pink); font-weight: 700;
-}
-
-/* Home bottom closer */
-.home-closer {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 8px 0 4px; gap: 4px;
-}
-.home-closer-line {
-  width: 32px; height: 1px; background: rgba(32, 32, 32, 0.10); border-radius: 9999px;
-}
-.home-closer-text {
-  font-size: 0.72rem; color: #b0b0b0;
-  letter-spacing: 0.5px; text-align: center; line-height: 1.5;
-}
+/* ─ .home-theme overrides (purple) — kept for potential reuse ─ */

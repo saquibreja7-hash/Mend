@@ -43,6 +43,8 @@
   --font-head: var(--font-display), 'Bricolage Grotesque', -apple-system, sans-serif;
   --font-body: var(--font-inter), 'Inter', -apple-system, sans-serif;
   --font-code: var(--font-mono), 'JetBrains Mono', monospace;
+  --font-sketch: var(--font-sketch), 'Caveat', cursive;
+  --font-space-mono: var(--font-space-mono), 'Space Mono', monospace;
 
   /* Elevation — colour-blocking, no coloured shadows */
   --shadow-pink:  0 8px 24px rgba(32, 32, 32, 0.08);

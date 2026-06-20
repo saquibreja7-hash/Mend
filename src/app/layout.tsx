@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import { Inter, Bricolage_Grotesque, JetBrains_Mono, Caveat, Space_Mono } from "next/font/google";
 import "./globals.css";
 import "./home-styles.css";
 
@@ -19,6 +19,18 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "600"],
   variable: "--font-mono",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-sketch",
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
 });
 
 export const metadata: Metadata = {
@@ -57,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable} ${caveat.variable} ${spaceMono.variable}`}>
       <body>
         {children}
         <canvas id="confetti-canvas"></canvas>

@@ -105,6 +105,10 @@ export default function Home() {
   const [ncResetOpen, setNcResetOpen] = useState(false);
   const [healingPercentage, setHealingPercentage] = useState(0);
 
+  // Daily intention
+  const [intention, setIntention] = useState("");
+  const [intentionEditing, setIntentionEditing] = useState(false);
+
   // Reusable confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({
@@ -228,6 +232,9 @@ export default function Home() {
 
     // 16. Today emotion chip
     setTodayEmotion(safeGetItem(`mend_emotion_today_${getTodayDateString()}`, null));
+
+    // 17. Daily intention
+    setIntention(safeGetItem("mend_intention", "") || "");
 
     // 10. Checklist reset check
     const todayStr = getTodayDateString();
@@ -851,115 +858,257 @@ export default function Home() {
           {/* ── view-home: Dashboard ── */}
           {currentView === "view-home" && (
             <div className="view-section active">
-              {/* Greeting */}
-              <div className="home-greeting">
-                <h1 className="greeting-name">
-                  Good {getTimeOfDay()}{username ? `, ${username}` : ""}
-                </h1>
-                <p className="greeting-sub">
-                  Healing isn&apos;t linear.<br />
-                  You&apos;re doing better than you think.
-                </p>
-              </div>
 
-              {/* Mood chips */}
-              <div className="mood-section">
-                <p className="home-section-title">How are you feeling right now?</p>
-                <p className="home-section-subtitle">Be honest. It helps you heal.</p>
-                <div className="mood-chips-row">
-                  {MOOD_OPTIONS.map((mood) => (
-                    <button
-                      key={mood.id}
-                      className={`mood-chip ${todayEmotion === mood.id ? "active" : ""}`}
-                      onClick={() => handleSetEmotion(mood.id)}
-                    >
-                      {mood.emoji} {mood.label}
-                    </button>
-                  ))}
+              {/* Progress Bar */}
+              <div className="home-progress-wrap">
+                <div className="home-progress-labels">
+                  <span className="home-progress-label">Today&apos;s Healing</span>
+                  <span className="home-progress-pct">{healingPercentage}%</span>
+                </div>
+                <div className="home-progress-track">
+                  <div className="home-progress-fill" style={{ width: `${healingPercentage}%` }} />
                 </div>
               </div>
 
-              {/* Focus card */}
-              <div className="focus-card">
-                <span className="focus-badge">★ FOCUS</span>
-                <p className="focus-headline">
-                  {ncStart ? "Don’t contact them today." : "You’re making progress."}
-                </p>
-                {ncStart && (
-                  <p className="focus-nc-days">
-                    {Math.max(0, Math.floor((Date.now() - new Date(ncStart).getTime()) / (1000 * 60 * 60 * 24)))} days strong
+              {/* Hero Quote + Landscape Illustration */}
+              <div className="home-hero">
+                <div className="home-hero-text">
+                  <p className="home-hero-quote">
+                    You&apos;re not starting over. You&apos;re choosing yourself.
                   </p>
-                )}
-                <p className="focus-sub">
-                  {ncStart
-                    ? "Every day you don’t reopen the wound is a day it heals."
-                    : "Every small step forward is proof of your strength."}
-                </p>
-                <button
-                  className="focus-cta"
-                  onClick={() => handleViewChange("view-heal")}
-                >
-                  ▶ 2 Minute Exercise
-                </button>
+                  <p className="home-hero-sub">
+                    Good {getTimeOfDay()}{username ? `, ${username}` : ""}
+                  </p>
+                </div>
+                {/* Sketch landscape SVG */}
+                <svg className="home-hero-illo" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Sky */}
+                  <ellipse cx="78" cy="16" rx="12" ry="12" stroke="#1c1917" strokeWidth="1.2" fill="none" />
+                  <line x1="78" y1="1" x2="78" y2="4" stroke="#1c1917" strokeWidth="1" />
+                  <line x1="78" y1="28" x2="78" y2="31" stroke="#1c1917" strokeWidth="1" />
+                  <line x1="63" y1="16" x2="66" y2="16" stroke="#1c1917" strokeWidth="1" />
+                  <line x1="90" y1="16" x2="93" y2="16" stroke="#1c1917" strokeWidth="1" />
+                  {/* Birds */}
+                  <path d="M20 12 Q23 9 26 12" stroke="#1c1917" strokeWidth="1" fill="none" />
+                  <path d="M30 8 Q33 5 36 8" stroke="#1c1917" strokeWidth="1" fill="none" />
+                  {/* Hills */}
+                  <path d="M0 65 Q25 38 50 55 Q70 68 100 45 L100 80 L0 80 Z" stroke="#1c1917" strokeWidth="1.3" fill="#ede8df" />
+                  {/* Winding road */}
+                  <path d="M10 80 Q30 68 45 58 Q60 48 80 52 Q90 54 100 50" stroke="#1c1917" strokeWidth="1.2" fill="none" strokeDasharray="3 2" />
+                  {/* Ground line */}
+                  <line x1="0" y1="80" x2="100" y2="80" stroke="#1c1917" strokeWidth="1" />
+                </svg>
               </div>
 
-              {/* Quick journal entry */}
-              <button
-                className="quick-journal-tap"
-                onClick={() => {
-                  triggerHaptic(12);
-                  handleViewChange("view-journal");
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-                <span className="quick-journal-placeholder">What&apos;s on your mind?</span>
-                <span className="quick-journal-arrow">›</span>
-              </button>
-
-              {/* Journey progress */}
-              <div className="journey-section">
-                <div className="journey-header">
-                  <div>
-                    <p className="home-section-title">Your journey</p>
-                    <p className="home-section-subtitle">See your progress over time.</p>
+              {/* Today’s Snapshot */}
+              <div className="home-snapshot-card">
+                <div className="home-snapshot-title">Today&apos;s Snapshot</div>
+                <div className="home-snapshot-cols">
+                  {/* NC Days */}
+                  <div className="home-snapshot-col">
+                    <svg className="home-snapshot-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    <span className="home-snapshot-num">
+                      {ncStart ? Math.max(0, Math.floor((Date.now() - new Date(ncStart).getTime()) / (1000 * 60 * 60 * 24))) : 0}
+                    </span>
+                    <span className="home-snapshot-lbl">No-Contact{"\n"}Days</span>
                   </div>
-                  <button
-                    className="journey-view-all"
-                    onClick={() => handleViewChange("view-heal")}
-                  >
-                    View all
+                  {/* Mood */}
+                  <div className="home-snapshot-col">
+                    <svg className="home-snapshot-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                      <line x1="9" y1="9" x2="9.01" y2="9" />
+                      <line x1="15" y1="9" x2="15.01" y2="9" />
+                    </svg>
+                    <span className="home-snapshot-num" style={{ fontSize: "1rem", paddingTop: "4px" }}>
+                      {(() => {
+                        const todayEntry = moodHistory.find((m) => m.date === getTodayDateString());
+                        if (!todayEntry) return "—";
+                        if (todayEntry.score >= 7) return "Good";
+                        if (todayEntry.score >= 4) return "Okay";
+                        return "Low";
+                      })()}
+                    </span>
+                    <span className="home-snapshot-lbl">Mood</span>
+                  </div>
+                  {/* Urges */}
+                  <div className="home-snapshot-col">
+                    <svg className="home-snapshot-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 12 C2 6 6 2 12 2 C18 2 22 6 22 12" />
+                      <path d="M2 12 C4 16 7 20 12 22 C17 20 20 16 22 12" />
+                    </svg>
+                    <span className="home-snapshot-num">{getTodayCount(urges)}</span>
+                    <span className="home-snapshot-lbl">Urges{"\n"}Today</span>
+                  </div>
+                  {/* Profile Checks */}
+                  <div className="home-snapshot-col">
+                    <svg className="home-snapshot-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span className="home-snapshot-num">{getTodayCount(profileChecks)}</span>
+                    <span className="home-snapshot-lbl">Profile{"\n"}Checks</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Where Do You Want To Go */}
+              <div className="home-section">
+                <p className="home-section-heading">Where do you want to go?</p>
+                <div className="home-nav-tiles">
+                  {/* Vent */}
+                  <button className="home-nav-tile" onClick={() => handleViewChange("view-journal")}>
+                    <svg className="home-nav-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span className="home-nav-tile-lbl">Vent</span>
+                  </button>
+                  {/* Truths */}
+                  <button className="home-nav-tile" onClick={() => handleViewChange("view-profile")}>
+                    <svg className="home-nav-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <span className="home-nav-tile-lbl">Truths</span>
+                  </button>
+                  {/* Heal */}
+                  <button className="home-nav-tile" onClick={() => handleViewChange("view-heal")}>
+                    <svg className="home-nav-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2a10 10 0 0 1 0 20" />
+                      <path d="M12 2a10 10 0 0 0 0 20" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                    <span className="home-nav-tile-lbl">Heal</span>
+                  </button>
+                  {/* Breathe */}
+                  <button className="home-nav-tile" onClick={() => handleViewChange("view-heal")}>
+                    <svg className="home-nav-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
+                    </svg>
+                    <span className="home-nav-tile-lbl">Breathe</span>
+                  </button>
+                  {/* Vault */}
+                  <button className="home-nav-tile" onClick={() => handleViewChange("view-library")}>
+                    <svg className="home-nav-tile-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span className="home-nav-tile-lbl">Vault</span>
                   </button>
                 </div>
-                <div className="journey-grid">
-                  {Array.from({ length: 14 }, (_, i) => {
-                    const d = new Date();
-                    d.setDate(d.getDate() - (13 - i));
-                    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                    const isActive = moodHistory.some((m) => m.date === ds);
-                    const isToday = i === 13;
-                    return (
-                      <div
-                        key={ds}
-                        className={`journey-square${isActive ? " active" : ""}${isToday ? " today" : ""}`}
-                        title={ds}
+              </div>
+
+              {/* Daily Intention */}
+              <div className="home-intention-card">
+                <div className="home-intention-inner">
+                  <div className="home-intention-text-area">
+                    <span className="home-intention-label">Daily Intention</span>
+                    {intentionEditing ? (
+                      <input
+                        className="home-intention-input"
+                        autoFocus
+                        value={intention}
+                        placeholder="Write your intention..."
+                        onChange={(e) => setIntention(e.target.value)}
+                        onBlur={() => {
+                          setIntentionEditing(false);
+                          safeSetItem("mend_intention", intention);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            setIntentionEditing(false);
+                            safeSetItem("mend_intention", intention);
+                          }
+                        }}
                       />
-                    );
-                  })}
+                    ) : intention ? (
+                      <p className="home-intention-quote">{intention}</p>
+                    ) : (
+                      <p className="home-intention-placeholder">Set your focus for today...</p>
+                    )}
+                  </div>
+                  {/* Plant SVG */}
+                  <svg className="home-intention-illo" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Pot */}
+                    <path d="M18 58 L22 72 L38 72 L42 58 Z" stroke="#1c1917" strokeWidth="1.3" fill="#ede8df" />
+                    <ellipse cx="30" cy="58" rx="12" ry="3.5" stroke="#1c1917" strokeWidth="1.3" fill="#e8e0d5" />
+                    {/* Stem */}
+                    <path d="M30 57 C30 50 28 42 30 32" stroke="#1c1917" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+                    {/* Left leaf */}
+                    <path d="M30 44 C24 40 16 38 18 30 C22 32 28 36 30 44" stroke="#1c1917" strokeWidth="1.2" fill="#ede8df" />
+                    {/* Right leaf */}
+                    <path d="M30 38 C36 34 44 32 42 24 C38 26 32 30 30 38" stroke="#1c1917" strokeWidth="1.2" fill="#ede8df" />
+                    {/* Top small leaf */}
+                    <path d="M30 32 C28 26 30 20 32 18 C34 22 32 28 30 32" stroke="#1c1917" strokeWidth="1.2" fill="#ede8df" />
+                  </svg>
                 </div>
-                <div className="journey-labels">
-                  <span>2 weeks ago</span>
-                  <span>1 week ago</span>
-                  <span>Today</span>
+                <div className="home-intention-divider" />
+                <div className="home-intention-footer">
+                  <button
+                    className="home-intention-set-btn"
+                    onClick={() => setIntentionEditing(true)}
+                  >
+                    + {intention ? "Change intention" : "Set a new intention"}
+                  </button>
                 </div>
               </div>
 
-              {/* Home closer */}
-              <div className="home-closer">
-                <div className="home-closer-line" />
-                <p className="home-closer-text">You showed up today. That matters.</p>
+              {/* Quick Tools */}
+              <div className="home-section">
+                <p className="home-section-heading">Quick Tools</p>
+                <div className="home-quick-grid">
+                  {/* Grounding */}
+                  <button className="home-quick-card" onClick={() => { setGroundingOpen(true); handleViewChange("view-journal"); }}>
+                    <div className="home-quick-card-top">
+                      <svg className="home-quick-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22V12m0 0C12 7 9 4 5 4c0 4 3 7 7 8zm0 0c0-5 3-8 7-8 0 4-3 7-7 8" />
+                      </svg>
+                      <span className="home-quick-card-arrow">→</span>
+                    </div>
+                    <p className="home-quick-card-title">Grounding</p>
+                    <p className="home-quick-card-sub">5-4-3-2-1</p>
+                  </button>
+                  {/* Urge Log */}
+                  <button className="home-quick-card" onClick={() => handleViewChange("view-profile")}>
+                    <div className="home-quick-card-top">
+                      <svg className="home-quick-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                      <span className="home-quick-card-arrow">→</span>
+                    </div>
+                    <p className="home-quick-card-title">Urge Log</p>
+                    <p className="home-quick-card-sub">Track urges</p>
+                  </button>
+                  {/* Panic Mode */}
+                  <button className="home-quick-card" onClick={() => setPanicOpen(true)}>
+                    <div className="home-quick-card-top">
+                      <svg className="home-quick-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                      </svg>
+                      <span className="home-quick-card-arrow">→</span>
+                    </div>
+                    <p className="home-quick-card-title">Panic Mode</p>
+                    <p className="home-quick-card-sub">I need help</p>
+                  </button>
+                  {/* Journal */}
+                  <button className="home-quick-card" onClick={() => handleViewChange("view-journal")}>
+                    <div className="home-quick-card-top">
+                      <svg className="home-quick-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
+                      <span className="home-quick-card-arrow">→</span>
+                    </div>
+                    <p className="home-quick-card-title">Journal</p>
+                    <p className="home-quick-card-sub">Write freely</p>
+                  </button>
+                </div>
               </div>
+
             </div>
           )}
 
