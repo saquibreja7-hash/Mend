@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { SelfCareItem, MoodEntry, ReframeEntry, LetterEntry, IdentityData } from "@/types";
+import { SelfCareItem, MoodEntry, ReframeEntry, LetterEntry, IdentityData, UrgeEntry, ProfileCheck, UnsentLetter, VoiceEntry, DashboardDay } from "@/types";
 import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
@@ -19,6 +19,11 @@ import SurvivalChecklist from "@/components/Heal/SurvivalChecklist";
 import BreathingGuide from "@/components/Breathe/BreathingGuide";
 import FutureLetters from "@/components/Vault/FutureLetters";
 import IdentityBoard from "@/components/Vault/IdentityBoard";
+import LetterVault from "@/components/Vault/LetterVault";
+import UrgeLog from "@/components/Truths/UrgeLog";
+import ProfileCheckTracker from "@/components/Truths/ProfileCheckTracker";
+import RecoveryDashboard from "@/components/Heal/RecoveryDashboard";
+import VoiceDump from "@/components/VoiceDump/VoiceDump";
 import Onboarding from "@/components/Onboarding";
 import SettingsDrawer from "@/components/SettingsDrawer";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -26,6 +31,10 @@ import ConfirmModal from "@/components/ConfirmModal";
 // Utilities
 import { triggerHaptic } from "@/utils/haptics";
 import { safeGetItem, safeSetItem, safeRemoveItem, safeJsonParse } from "@/utils/storage";
+import { clearVoiceDB } from "@/utils/voiceDB";
+import { pushAllToFirestore, pullFromFirestore } from "@/utils/firebaseSync";
+import { onUserChanged } from "@/lib/firebase";
+import { User } from "firebase/auth";
 
 const defaultSelfCareItems: SelfCareItem[] = [
   { id: "water", title: "Hydrate", desc: "Drank at least 3 glasses of water today.", checked: false },
@@ -48,7 +57,7 @@ export default function Home() {
   // App Navigation Views
   const [currentView, setCurrentView] = useState("view-vent");
   const [ventMode, setVentMode] = useState<"vent" | "reframe">("vent");
-  const [vaultSubTab, setVaultSubTab] = useState<"letters" | "identity">("letters");
+  const [vaultSubTab, setVaultSubTab] = useState<"letters" | "unsent" | "voice" | "identity">("letters");
 
   // State Properties
   const [streak, setStreak] = useState(0);
@@ -62,6 +71,16 @@ export default function Home() {
   const [customChecklistItems, setCustomChecklistItems] = useState<SelfCareItem[]>([]);
   const [letters, setLetters] = useState<LetterEntry[]>([]);
   const [identity, setIdentity] = useState<IdentityData>({ values: [], reclaim: [], becoming: "" });
+
+  // New feature state
+  const [urges, setUrges] = useState<UrgeEntry[]>([]);
+  const [profileChecks, setProfileChecks] = useState<ProfileCheck[]>([]);
+  const [unsentLetters, setUnsentLetters] = useState<UnsentLetter[]>([]);
+  const [voiceEntries, setVoiceEntries] = useState<VoiceEntry[]>([]);
+  const [dashboardDay, setDashboardDay] = useState<DashboardDay>({ date: "" });
+
+  // Auth
+  const [authUser, setAuthUser] = useState<User | null>(null);
 
   // Custom User settings & onboarding states
   const [username, setUsername] = useState("");
@@ -170,6 +189,23 @@ export default function Home() {
     // 9. Identity
     setIdentity(safeJsonParse<IdentityData>(safeGetItem("mend_identity", null), { values: [], reclaim: [], becoming: "" }));
 
+    // 11. Urges
+    setUrges(safeJsonParse<UrgeEntry[]>(safeGetItem("mend_urges", null), []));
+
+    // 12. Profile Checks
+    setProfileChecks(safeJsonParse<ProfileCheck[]>(safeGetItem("mend_profile_checks", null), []));
+
+    // 13. Unsent Letters
+    setUnsentLetters(safeJsonParse<UnsentLetter[]>(safeGetItem("mend_unsent_letters", null), []));
+
+    // 14. Voice Entries (metadata only; blobs live in IndexedDB)
+    setVoiceEntries(safeJsonParse<VoiceEntry[]>(safeGetItem("mend_voice_entries", null), []));
+
+    // 15. Dashboard day data
+    const todayKey = `mend_dashboard_${getTodayDateString()}`;
+    const savedDash = safeGetItem(todayKey, null);
+    setDashboardDay(savedDash ? safeJsonParse<DashboardDay>(savedDash, { date: getTodayDateString() }) : { date: getTodayDateString() });
+
     // 10. Checklist reset check
     const todayStr = getTodayDateString();
     const savedChecklist = safeGetItem(`mend_checklist_${todayStr}`, null);
@@ -206,6 +242,66 @@ export default function Home() {
     setHealingPercentage(all.length > 0 ? Math.round((checked / all.length) * 100) : 0);
   }, []);
 
+  // isHydrated gates the push effect — ensures pull completes before any push fires
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Subscribe to Firebase auth state + pull on every auth change.
+  // Running pull here (not on mount) means it fires correctly when:
+  //   - App first loads (anonymous sign-in resolves)
+  //   - User upgrades to Google (new UID, cloud data must be fetched)
+  useEffect(() => {
+    const unsub = onUserChanged(async (user) => {
+      setAuthUser(user);
+      if (!user) { setIsHydrated(true); return; }
+
+      const remote = await pullFromFirestore();
+      if (remote && typeof window !== "undefined") {
+        let merged = false;
+        Object.entries(remote).forEach(([key, val]) => {
+          if (key === "updatedAt") return;
+          if (typeof val === "string" && !localStorage.getItem(key)) {
+            localStorage.setItem(key, val);
+            merged = true;
+          }
+        });
+        // Reload so React state hydrates from the merged localStorage
+        if (merged) { window.location.reload(); return; }
+      }
+      setIsHydrated(true);
+    });
+    return unsub;
+  }, []);
+
+  // Push all mend_ keys to Firestore on meaningful state changes.
+  // Guarded by isHydrated so it never fires before pull completes.
+  useEffect(() => {
+    if (!isMounted || !isHydrated) return;
+    const snapshot: Record<string, string> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("mend_")) {
+        snapshot[key] = localStorage.getItem(key) || "";
+      }
+    }
+    pushAllToFirestore(snapshot);
+  }, [
+    isMounted,
+    isHydrated,
+    moodHistory,
+    reframes,
+    urges,
+    profileChecks,
+    unsentLetters,
+    voiceEntries,
+    letters,
+    identity,
+    selfCareItems,
+    realityChecks,
+    dashboardDay,
+    ncStart,
+    streak,
+  ]);
+
   // Update healing percentage whenever checklists modify
   useEffect(() => {
     if (!isMounted) return;
@@ -239,7 +335,7 @@ export default function Home() {
     setVentMode(mode);
   };
 
-  const handleToggleVaultSub = (tab: "letters" | "identity") => {
+  const handleToggleVaultSub = (tab: "letters" | "unsent" | "voice" | "identity") => {
     triggerHaptic(12);
     setVaultSubTab(tab);
   };
@@ -564,6 +660,78 @@ export default function Home() {
     handleGlowHeaderBar();
   };
 
+  // Urge Log handlers
+  const handleLogUrge = (category: string) => {
+    triggerHaptic(20);
+    const entry: UrgeEntry = { id: "urge_" + Date.now(), category, timestamp: Date.now() };
+    const updated = [...urges, entry];
+    setUrges(updated);
+    safeSetItem("mend_urges", JSON.stringify(updated));
+  };
+
+  const handleDeleteUrge = (id: string) => {
+    const updated = urges.filter((u) => u.id !== id);
+    setUrges(updated);
+    safeSetItem("mend_urges", JSON.stringify(updated));
+  };
+
+  // Profile Check handlers
+  const handleProfileCheck = () => {
+    triggerHaptic(20);
+    const entry: ProfileCheck = { id: "pc_" + Date.now(), timestamp: Date.now() };
+    const updated = [...profileChecks, entry];
+    setProfileChecks(updated);
+    safeSetItem("mend_profile_checks", JSON.stringify(updated));
+  };
+
+  // Unsent Letters handlers
+  const handleSaveUnsentLetter = (text: string, category: string) => {
+    triggerHaptic(25);
+    const entry: UnsentLetter = { id: "ul_" + Date.now(), text, category, createdAt: Date.now() };
+    const updated = [...unsentLetters, entry];
+    setUnsentLetters(updated);
+    safeSetItem("mend_unsent_letters", JSON.stringify(updated));
+  };
+
+  const handleDeleteUnsentLetter = (id: string) => {
+    showConfirm("Delete Letter?", "Permanently delete this letter? This cannot be undone.", () => {
+      const updated = unsentLetters.filter((l) => l.id !== id);
+      setUnsentLetters(updated);
+      safeSetItem("mend_unsent_letters", JSON.stringify(updated));
+    });
+  };
+
+  // Voice Entry handlers
+  const handleSaveVoiceEntry = (entry: VoiceEntry) => {
+    const updated = [...voiceEntries, entry];
+    setVoiceEntries(updated);
+    safeSetItem("mend_voice_entries", JSON.stringify(updated));
+  };
+
+  const handleDeleteVoiceEntry = (id: string) => {
+    const updated = voiceEntries.filter((e) => e.id !== id);
+    setVoiceEntries(updated);
+    safeSetItem("mend_voice_entries", JSON.stringify(updated));
+  };
+
+  // Dashboard day handler
+  const handleUpdateDashboard = (data: Partial<DashboardDay>) => {
+    const todayStr = getTodayDateString();
+    const updated = { ...dashboardDay, ...data, date: todayStr };
+    setDashboardDay(updated);
+    safeSetItem(`mend_dashboard_${todayStr}`, JSON.stringify(updated));
+  };
+
+  // Helper: today's counts for dashboard
+  const getTodayCount = (items: Array<{ timestamp: number }>) => {
+    const todayStr = getTodayDateString();
+    return items.filter((item) => {
+      const d = new Date(item.timestamp);
+      const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return ds === todayStr;
+    }).length;
+  };
+
   // Settings drawers handlers
   const handleUpdateUsername = (newName: string) => {
     setUsername(newName);
@@ -573,9 +741,10 @@ export default function Home() {
   const handleTriggerResetAll = () => {
     showConfirm(
       "Reset All Companion Data?",
-      "WARNING: This will permanently wipe all logs, letters, streaks, checks, and settings. This cannot be undone.",
+      "WARNING: This will permanently wipe all logs, letters, streaks, checks, voice recordings, and settings. This cannot be undone.",
       () => {
         if (typeof window !== "undefined") {
+          clearVoiceDB().catch(() => {});
           localStorage.clear();
           window.location.reload();
         }
@@ -589,6 +758,7 @@ export default function Home() {
       "This will replace all your current logs, reframes, letters, and streaks with the backup data. The app will reload.",
       () => {
         if (typeof window !== "undefined") {
+          clearVoiceDB().catch(() => {});
           localStorage.clear();
           Object.entries(backupData).forEach(([key, val]) => {
             localStorage.setItem(key, val);
@@ -718,6 +888,21 @@ export default function Home() {
                 onDeleteReality={handleDeleteReality}
                 onPanicClick={() => setPanicOpen(true)}
               />
+
+              {/* Profile Check Tracker */}
+              <ProfileCheckTracker
+                checks={profileChecks}
+                onCheck={handleProfileCheck}
+                getTodayDateString={getTodayDateString}
+              />
+
+              {/* Urge Log */}
+              <UrgeLog
+                urges={urges}
+                onLogUrge={handleLogUrge}
+                onDeleteUrge={handleDeleteUrge}
+                getTodayDateString={getTodayDateString}
+              />
             </div>
           )}
 
@@ -728,6 +913,17 @@ export default function Home() {
                 <h2>Daily Healing</h2>
                 <p>One step at a time. Your nervous system is recovering.</p>
               </div>
+
+              {/* Recovery Dashboard */}
+              <RecoveryDashboard
+                dashboardDay={dashboardDay}
+                ncStart={ncStart}
+                moodHistory={moodHistory}
+                urgesCount={getTodayCount(urges)}
+                profileChecksCount={getTodayCount(profileChecks)}
+                onUpdateDashboard={handleUpdateDashboard}
+                getTodayDateString={getTodayDateString}
+              />
 
               {/* Mood checks */}
               <MoodTracker moodHistory={moodHistory} onSaveMood={handleSaveMood} />
@@ -746,32 +942,53 @@ export default function Home() {
           {/* view-breathing: Pulsing meditation guidelines */}
           {currentView === "view-breathing" && <BreathingGuide />}
 
-          {/* view-future: Write letters to future / identity values rebuild */}
+          {/* view-future: Vault — Future Letters, Unsent Letters, Voice Dump, Identity */}
           {currentView === "view-future" && (
             <div className="view-section active">
-              <div className="future-tabs">
-                <button
-                  className={`future-tab ${vaultSubTab === "letters" ? "active" : ""}`}
-                  onClick={() => handleToggleVaultSub("letters")}
-                >
-                  📨 Letters
-                </button>
-                <button
-                  className={`future-tab ${vaultSubTab === "identity" ? "active" : ""}`}
-                  onClick={() => handleToggleVaultSub("identity")}
-                >
-                  🌱 Identity
-                </button>
+              <div className="future-tabs" style={{ gap: "2px" }}>
+                {(["letters", "unsent", "voice", "identity"] as const).map((tab) => {
+                  const labels: Record<string, string> = {
+                    letters: "📨 Future",
+                    unsent: "💌 Unsent",
+                    voice: "🎙️ Voice",
+                    identity: "🌱 Identity",
+                  };
+                  return (
+                    <button
+                      key={tab}
+                      className={`future-tab ${vaultSubTab === tab ? "active" : ""}`}
+                      onClick={() => handleToggleVaultSub(tab)}
+                      style={{ fontSize: "0.72rem", padding: "8px 4px" }}
+                    >
+                      {labels[tab]}
+                    </button>
+                  );
+                })}
               </div>
 
-              {vaultSubTab === "letters" ? (
+              {vaultSubTab === "letters" && (
                 <FutureLetters
                   letters={letters}
                   onSaveLetter={handleSaveLetter}
                   onOpenLetter={handleOpenLetter}
                   onDeleteLetter={handleDeleteLetter}
                 />
-              ) : (
+              )}
+              {vaultSubTab === "unsent" && (
+                <LetterVault
+                  letters={unsentLetters}
+                  onSaveLetter={handleSaveUnsentLetter}
+                  onDeleteLetter={handleDeleteUnsentLetter}
+                />
+              )}
+              {vaultSubTab === "voice" && (
+                <VoiceDump
+                  entries={voiceEntries}
+                  onSaveEntry={handleSaveVoiceEntry}
+                  onDeleteEntry={handleDeleteVoiceEntry}
+                />
+              )}
+              {vaultSubTab === "identity" && (
                 <IdentityBoard
                   identity={identity}
                   onAddValue={handleAddValue}
@@ -798,6 +1015,7 @@ export default function Home() {
       <SettingsDrawer
         isOpen={settingsOpen}
         username={username}
+        authUser={authUser}
         onClose={() => setSettingsOpen(false)}
         onUpdateUsername={handleUpdateUsername}
         onTriggerResetAll={handleTriggerResetAll}

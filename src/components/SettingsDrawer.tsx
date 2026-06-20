@@ -2,10 +2,19 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { triggerHaptic } from "@/utils/haptics";
+import { signInWithGoogle, signOut } from "@/lib/firebase";
+
+interface AuthUser {
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  isAnonymous: boolean;
+}
 
 interface SettingsDrawerProps {
   isOpen: boolean;
   username: string;
+  authUser: AuthUser | null;
   onClose: () => void;
   onUpdateUsername: (newName: string) => void;
   onTriggerResetAll: () => void;
@@ -15,6 +24,7 @@ interface SettingsDrawerProps {
 export default function SettingsDrawer({
   isOpen,
   username,
+  authUser,
   onClose,
   onUpdateUsername,
   onTriggerResetAll,
@@ -23,6 +33,8 @@ export default function SettingsDrawer({
   const [localName, setLocalName] = useState(username);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [importError, setImportError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -30,6 +42,29 @@ export default function SettingsDrawer({
   }, [username]);
 
   if (!isOpen) return null;
+
+  const handleGoogleSignIn = async () => {
+    triggerHaptic(15);
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      await signInWithGoogle();
+    } catch {
+      setAuthError("Sign-in failed. Please try again.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    triggerHaptic(15);
+    setAuthLoading(true);
+    try {
+      await signOut();
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const handleSaveName = () => {
     triggerHaptic(15);
@@ -132,6 +167,83 @@ export default function SettingsDrawer({
           >
             &times;
           </button>
+        </div>
+
+        {/* 0. Account / Google Auth */}
+        <div className="identity-section-card" style={{ padding: "16px", marginBottom: "16px", background: "var(--bg-surface)" }}>
+          <h4 style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "8px", fontWeight: 700 }}>
+            Account
+          </h4>
+          {authUser && !authUser.isAnonymous ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {authUser.photoURL && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={authUser.photoURL}
+                    alt="avatar"
+                    width={36}
+                    height={36}
+                    style={{ borderRadius: "50%", flexShrink: 0 }}
+                  />
+                )}
+                <div>
+                  <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                    {authUser.displayName || "Google User"}
+                  </div>
+                  <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>{authUser.email}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: "0.72rem", color: "var(--emerald)", fontWeight: 600 }}>
+                ✓ Syncing to Google account
+              </div>
+              <button
+                className="btn-secondary"
+                style={{ fontSize: "0.78rem", padding: "8px", background: "rgba(0,0,0,0.04)" }}
+                onClick={handleSignOut}
+                disabled={authLoading}
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.45 }}>
+                Sign in with Google to sync your data across devices and keep a secure cloud backup.
+              </p>
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={authLoading}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "10px 16px",
+                  borderRadius: "10px",
+                  border: "1px solid var(--border)",
+                  background: "white",
+                  color: "#3c4043",
+                  fontSize: "0.84rem",
+                  fontWeight: 600,
+                  cursor: authLoading ? "not-allowed" : "pointer",
+                  opacity: authLoading ? 0.7 : 1,
+                  transition: "var(--tr)",
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                {authLoading ? "Signing in..." : "Continue with Google"}
+              </button>
+              {authError && (
+                <p style={{ fontSize: "0.72rem", color: "var(--red)", fontWeight: 600 }}>{authError}</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 1. Name Profile Section */}

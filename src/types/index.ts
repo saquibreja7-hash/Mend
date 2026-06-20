@@ -34,6 +34,38 @@ export interface IdentityData {
   becoming: string;
 }
 
+export interface UrgeEntry {
+  id: string;
+  category: string;
+  timestamp: number;
+}
+
+export interface ProfileCheck {
+  id: string;
+  timestamp: number;
+}
+
+export interface UnsentLetter {
+  id: string;
+  text: string;
+  category: string;
+  createdAt: number;
+}
+
+export interface VoiceEntry {
+  id: string;
+  title: string;
+  duration: number;
+  timestamp: number;
+}
+
+export interface DashboardDay {
+  date: string;
+  sleep?: number;
+  meals?: number;
+  exercised?: boolean;
+}
+
 export interface MendState {
   streak: number;
   lastActiveDate: string | null;
