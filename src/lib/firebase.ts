@@ -5,6 +5,8 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   GoogleAuthProvider,
+  signInWithPopup,
+  linkWithPopup,
   signInWithRedirect,
   linkWithRedirect,
   getRedirectResult,
@@ -48,14 +50,35 @@ export function onUserChanged(cb: (user: User | null) => void) {
 }
 
 // Upgrade anonymous account to Google — preserves all data.
-// Uses redirect (not popup) so it works reliably on mobile/PWA.
-// The page navigates away; auth state is resolved on return via handleRedirectResult.
+// Strategy: try popup first (works on desktop + most browsers).
+// If popup is blocked (common on mobile/PWA), fall back to redirect.
 export async function signInWithGoogle(): Promise<void> {
   const current = auth.currentUser;
-  if (current?.isAnonymous) {
-    await linkWithRedirect(current, googleProvider);
-  } else {
-    await signInWithRedirect(auth, googleProvider);
+
+  const POPUP_BLOCKED_CODES = new Set([
+    "auth/popup-blocked",
+    "auth/popup-closed-by-user",
+    "auth/cancelled-popup-request",
+  ]);
+
+  try {
+    if (current?.isAnonymous) {
+      await linkWithPopup(current, googleProvider);
+    } else {
+      await signInWithPopup(auth, googleProvider);
+    }
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code ?? "";
+    if (POPUP_BLOCKED_CODES.has(code)) {
+      // Popup was blocked — redirect is the reliable mobile fallback
+      if (current?.isAnonymous) {
+        await linkWithRedirect(current, googleProvider);
+      } else {
+        await signInWithRedirect(auth, googleProvider);
+      }
+    } else {
+      throw err; // Real error — let the UI surface it
+    }
   }
 }
 

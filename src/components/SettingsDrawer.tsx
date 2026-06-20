@@ -49,8 +49,15 @@ export default function SettingsDrawer({
     setAuthError("");
     try {
       await signInWithGoogle();
-    } catch {
-      setAuthError("Sign-in failed. Please try again.");
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "unknown";
+      if (code === "auth/unauthorized-domain") {
+        setAuthError("This domain isn't authorized in Firebase Console. Add it under Authentication → Settings → Authorized domains.");
+      } else if (code === "auth/operation-not-allowed") {
+        setAuthError("Google sign-in isn't enabled in Firebase Console.");
+      } else {
+        setAuthError(`Sign-in failed (${code}). Please try again.`);
+      }
     } finally {
       setAuthLoading(false);
     }
