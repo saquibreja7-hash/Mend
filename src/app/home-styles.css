@@ -10,7 +10,7 @@
   color: var(--text-primary);
 }
 .greeting-sub {
-  font-size: 0.85rem; color: var(--text-secondary);
+  font-size: 0.85rem; color: #8a8a8a;
   margin-top: 6px; line-height: 1.5;
 }
 
@@ -20,8 +20,8 @@
   color: var(--text-primary);
 }
 .home-section-subtitle {
-  font-size: 0.78rem; color: var(--text-muted);
-  margin-top: 2px; margin-bottom: 10px;
+  font-size: 0.78rem; color: #9a9a9a;
+  margin-top: 2px; margin-bottom: 12px;
 }
 
 /* Mood chips */
@@ -138,5 +138,21 @@
 }
 .journey-labels {
   display: flex; justify-content: space-between;
-  font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.2px;
+  font-size: 0.65rem; color: #9a9a9a; letter-spacing: 0.2px;
+}
+.journey-labels span:last-child {
+  color: var(--pink); font-weight: 700;
+}
+
+/* Home bottom closer */
+.home-closer {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 0 4px; gap: 4px;
+}
+.home-closer-line {
+  width: 32px; height: 1px; background: rgba(32, 32, 32, 0.10); border-radius: 9999px;
+}
+.home-closer-text {
+  font-size: 0.72rem; color: #b0b0b0;
+  letter-spacing: 0.5px; text-align: center; line-height: 1.5;
 }

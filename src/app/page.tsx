@@ -821,7 +821,7 @@ export default function Home() {
           <div className="brand" style={{ flexDirection: "column", gap: "10px" }}>
             <span className="brand-heart" style={{ fontSize: "2rem" }}>💔</span>
             <h1 style={{ fontSize: "1.8rem" }}>MEND</h1>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", letterSpacing: "1px" }}>LOADING ENVIRONMENT...</p>
+            <p style={{ fontSize: "0.75rem", color: "#b0b0b0", letterSpacing: "2px", textTransform: "uppercase" }}>Just a moment</p>
           </div>
         </div>
       </div>
@@ -908,7 +908,9 @@ export default function Home() {
                   handleViewChange("view-journal");
                 }}
               >
-                <span style={{ fontSize: "1.1rem" }}>✏️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
                 <span className="quick-journal-placeholder">What&apos;s on your mind?</span>
                 <span className="quick-journal-arrow">›</span>
               </button>
@@ -948,6 +950,12 @@ export default function Home() {
                   <span>1 week ago</span>
                   <span>Today</span>
                 </div>
+              </div>
+
+              {/* Home closer */}
+              <div className="home-closer">
+                <div className="home-closer-line" />
+                <p className="home-closer-text">You showed up today. That matters.</p>
               </div>
             </div>
           )}
