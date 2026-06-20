@@ -66,7 +66,9 @@ export default function Navigation({ currentView, onViewChange }: NavigationProp
           className={`nav-item ${currentView === item.id ? "active" : ""}`}
           onClick={() => onViewChange(item.id)}
         >
-          <span className="nav-icon">{item.icon}</span>
+          <span className="nav-icon-wrap">
+            <span className="nav-icon">{item.icon}</span>
+          </span>
           <span className="nav-label">{item.label}</span>
         </button>
       ))}

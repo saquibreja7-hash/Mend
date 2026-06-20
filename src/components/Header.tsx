@@ -41,27 +41,31 @@ export default function Header({ streak, ncStart, healingPercentage, onSettingsC
         <div className="header-badges">
           <div className="streak-container" id="streak-badge-container">
             <span>🔥</span>
-            <span id="streak-count">{streak}</span>d
+            <span id="streak-count">{streak}</span>
+            <span style={{ opacity: 0.6, fontSize: "0.7rem" }}>d</span>
           </div>
           {ncStart && (
             <div className="nc-badge" id="nc-header-badge">
               <span>🚫</span>
-              <span id="nc-header-days">{ncDays}</span>d NC
+              <span id="nc-header-days">{ncDays}</span>
+              <span style={{ opacity: 0.7, fontSize: "0.7rem" }}>NC</span>
             </div>
           )}
           <button
             onClick={onSettingsClick}
             style={{
-              background: "transparent",
-              border: "none",
-              fontSize: "1.1rem",
+              background: "rgba(32,32,32,0.04)",
+              border: "1px solid var(--border)",
+              borderRadius: "9999px",
+              width: "32px",
+              height: "32px",
               cursor: "pointer",
-              padding: "4px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "var(--text-secondary)",
-              opacity: 0.8,
+              fontSize: "0.95rem",
+              flexShrink: 0,
             }}
             title="Settings"
           >
@@ -69,9 +73,9 @@ export default function Header({ streak, ncStart, healingPercentage, onSettingsC
           </button>
         </div>
       </div>
-      <div className="healing-meter-wrap">
+      <div className="healing-meter-wrap" style={{ marginTop: "8px" }}>
         <div className="healing-meter-labels">
-          <span>Today's Healing</span>
+          <span>Today&apos;s Healing</span>
           <span id="healing-percentage">{healingPercentage}%</span>
         </div>
         <div className="healing-bar-bg">
