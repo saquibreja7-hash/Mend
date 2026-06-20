@@ -36,6 +36,17 @@ import { pushAllToFirestore, pullFromFirestore } from "@/utils/firebaseSync";
 import { onUserChanged } from "@/lib/firebase";
 import { User } from "firebase/auth";
 
+const MOOD_OPTIONS = [
+  { id: "numb",         emoji: "😶",     label: "Numb" },
+  { id: "missing",      emoji: "❤️‍🩹",   label: "Missing them" },
+  { id: "angry",        emoji: "😤",     label: "Angry" },
+  { id: "overthinking", emoji: "🌀",     label: "Overthinking" },
+  { id: "lonely",       emoji: "🫂",     label: "Lonely" },
+  { id: "hopeful",      emoji: "🌱",     label: "Hopeful" },
+  { id: "okay",         emoji: "😌",     label: "Okay" },
+  { id: "proud",        emoji: "💪",     label: "Proud" },
+];
+
 const defaultSelfCareItems: SelfCareItem[] = [
   { id: "water", title: "Hydrate", desc: "Drank at least 3 glasses of water today.", checked: false },
   { id: "meal", title: "Nourish", desc: "Ate a healthy, solid meal.", checked: false },
@@ -55,9 +66,10 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
 
   // App Navigation Views
-  const [currentView, setCurrentView] = useState("view-vent");
+  const [currentView, setCurrentView] = useState("view-home");
   const [ventMode, setVentMode] = useState<"vent" | "reframe">("vent");
   const [vaultSubTab, setVaultSubTab] = useState<"letters" | "unsent" | "voice" | "identity">("letters");
+  const [todayEmotion, setTodayEmotion] = useState<string | null>(null);
 
   // State Properties
   const [streak, setStreak] = useState(0);
@@ -100,6 +112,14 @@ export default function Home() {
     message: "",
     onConfirm: () => {},
   });
+
+  // Helper: time-of-day greeting
+  const getTimeOfDay = () => {
+    const h = new Date().getHours();
+    if (h < 12) return "morning";
+    if (h < 17) return "afternoon";
+    return "evening";
+  };
 
   // Helper date utility
   const getTodayDateString = () => {
@@ -205,6 +225,9 @@ export default function Home() {
     const todayKey = `mend_dashboard_${getTodayDateString()}`;
     const savedDash = safeGetItem(todayKey, null);
     setDashboardDay(savedDash ? safeJsonParse<DashboardDay>(savedDash, { date: getTodayDateString() }) : { date: getTodayDateString() });
+
+    // 16. Today emotion chip
+    setTodayEmotion(safeGetItem(`mend_emotion_today_${getTodayDateString()}`, null));
 
     // 10. Checklist reset check
     const todayStr = getTodayDateString();
@@ -722,6 +745,19 @@ export default function Home() {
     safeSetItem(`mend_dashboard_${todayStr}`, JSON.stringify(updated));
   };
 
+  // Emotion chip handler
+  const handleSetEmotion = (emotion: string) => {
+    triggerHaptic(15);
+    const key = `mend_emotion_today_${getTodayDateString()}`;
+    const next = todayEmotion === emotion ? null : emotion;
+    setTodayEmotion(next);
+    if (next) {
+      safeSetItem(key, next);
+    } else {
+      safeRemoveItem(key);
+    }
+  };
+
   // Helper: today's counts for dashboard
   const getTodayCount = (items: Array<{ timestamp: number }>) => {
     const todayStr = getTodayDateString();
@@ -808,23 +844,116 @@ export default function Home() {
 
         {/* Content Body */}
         <main className="app-content">
-          {/* Welcome greetings for logged users */}
-          {username && currentView === "view-vent" && (
-            <p
-              style={{
-                fontSize: "0.78rem",
-                color: "var(--text-muted)",
-                fontWeight: 600,
-                letterSpacing: "0.5px",
-                margin: "0 0 8px 0",
-              }}
-            >
-              MEND IS WITH YOU, {username.toUpperCase()} 🤍
-            </p>
+
+          {/* ── view-home: Dashboard ── */}
+          {currentView === "view-home" && (
+            <div className="view-section active">
+              {/* Greeting */}
+              <div className="home-greeting">
+                <h1 className="greeting-name">
+                  Good {getTimeOfDay()}{username ? `, ${username}` : ""}
+                </h1>
+                <p className="greeting-sub">
+                  Healing isn&apos;t linear.<br />
+                  You&apos;re doing better than you think.
+                </p>
+              </div>
+
+              {/* Mood chips */}
+              <div className="mood-section">
+                <p className="home-section-title">How are you feeling right now?</p>
+                <p className="home-section-subtitle">Be honest. It helps you heal.</p>
+                <div className="mood-chips-row">
+                  {MOOD_OPTIONS.map((mood) => (
+                    <button
+                      key={mood.id}
+                      className={`mood-chip ${todayEmotion === mood.id ? "active" : ""}`}
+                      onClick={() => handleSetEmotion(mood.id)}
+                    >
+                      {mood.emoji} {mood.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Focus card */}
+              <div className="focus-card">
+                <span className="focus-badge">★ FOCUS</span>
+                <p className="focus-headline">
+                  {ncStart ? "Don’t contact them today." : "You’re making progress."}
+                </p>
+                {ncStart && (
+                  <p className="focus-nc-days">
+                    {Math.max(0, Math.floor((Date.now() - new Date(ncStart).getTime()) / (1000 * 60 * 60 * 24)))} days strong
+                  </p>
+                )}
+                <p className="focus-sub">
+                  {ncStart
+                    ? "Every day you don’t reopen the wound is a day it heals."
+                    : "Every small step forward is proof of your strength."}
+                </p>
+                <button
+                  className="focus-cta"
+                  onClick={() => handleViewChange("view-heal")}
+                >
+                  ▶ 2 Minute Exercise
+                </button>
+              </div>
+
+              {/* Quick journal entry */}
+              <button
+                className="quick-journal-tap"
+                onClick={() => {
+                  triggerHaptic(12);
+                  handleViewChange("view-journal");
+                }}
+              >
+                <span style={{ fontSize: "1.1rem" }}>✏️</span>
+                <span className="quick-journal-placeholder">What&apos;s on your mind?</span>
+                <span className="quick-journal-arrow">›</span>
+              </button>
+
+              {/* Journey progress */}
+              <div className="journey-section">
+                <div className="journey-header">
+                  <div>
+                    <p className="home-section-title">Your journey</p>
+                    <p className="home-section-subtitle">See your progress over time.</p>
+                  </div>
+                  <button
+                    className="journey-view-all"
+                    onClick={() => handleViewChange("view-heal")}
+                  >
+                    View all
+                  </button>
+                </div>
+                <div className="journey-grid">
+                  {Array.from({ length: 14 }, (_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - (13 - i));
+                    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                    const isActive = moodHistory.some((m) => m.date === ds);
+                    const isToday = i === 13;
+                    return (
+                      <div
+                        key={ds}
+                        className={`journey-square${isActive ? " active" : ""}${isToday ? " today" : ""}`}
+                        title={ds}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="journey-labels">
+                  <span>2 weeks ago</span>
+                  <span>1 week ago</span>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/* view-vent: Venting, Reframing, Affirmations, Grounding, Grief */}
-          {currentView === "view-vent" && (
+          {/* ── view-journal: Vent, Reframe, Affirmations, Grounding, Grief ── */}
+          {currentView === "view-journal" && (
             <div className="view-section active">
               {/* Daily Affirmations Card */}
               <Affirmations onExpandGrounding={() => setGroundingOpen(true)} />
@@ -866,22 +995,20 @@ export default function Home() {
             </div>
           )}
 
-          {/* view-reality: No-Contact, Boundaries list, Panic urgetext */}
-          {currentView === "view-reality" && (
+          {/* ── view-profile: Truths, NC Counter, Urge Log, Panic ── */}
+          {currentView === "view-profile" && (
             <div className="view-section active">
               <div className="section-header">
                 <h2>Truths & Boundaries</h2>
                 <p>What is real. What you deserve. What you are protecting.</p>
               </div>
 
-              {/* NC Card */}
               <NCCounter
                 ncStart={ncStart}
                 onStartNC={handleStartNC}
                 onBrokeNC={() => setNcResetOpen(true)}
               />
 
-              {/* Reality boundaries Check card */}
               <RealityCheck
                 realityChecks={realityChecks}
                 onAddReality={handleAddReality}
@@ -889,14 +1016,12 @@ export default function Home() {
                 onPanicClick={() => setPanicOpen(true)}
               />
 
-              {/* Profile Check Tracker */}
               <ProfileCheckTracker
                 checks={profileChecks}
                 onCheck={handleProfileCheck}
                 getTodayDateString={getTodayDateString}
               />
 
-              {/* Urge Log */}
               <UrgeLog
                 urges={urges}
                 onLogUrge={handleLogUrge}
@@ -906,15 +1031,14 @@ export default function Home() {
             </div>
           )}
 
-          {/* view-selfcare: Mood Logging, survival checklist progress */}
-          {currentView === "view-selfcare" && (
+          {/* ── view-heal: Mood, Checklist, Breathing (merged) ── */}
+          {currentView === "view-heal" && (
             <div className="view-section active">
               <div className="section-header">
                 <h2>Daily Healing</h2>
                 <p>One step at a time. Your nervous system is recovering.</p>
               </div>
 
-              {/* Recovery Dashboard */}
               <RecoveryDashboard
                 dashboardDay={dashboardDay}
                 ncStart={ncStart}
@@ -925,10 +1049,8 @@ export default function Home() {
                 getTodayDateString={getTodayDateString}
               />
 
-              {/* Mood checks */}
               <MoodTracker moodHistory={moodHistory} onSaveMood={handleSaveMood} />
 
-              {/* Checklist */}
               <SurvivalChecklist
                 selfCareItems={selfCareItems}
                 customChecklistItems={customChecklistItems}
@@ -936,16 +1058,16 @@ export default function Home() {
                 onAddCustomItem={handleAddCustomItem}
                 onDeleteCustomItem={handleDeleteCustomItem}
               />
+
+              {/* Breathing guide merged into Heal */}
+              <BreathingGuide />
             </div>
           )}
 
-          {/* view-breathing: Pulsing meditation guidelines */}
-          {currentView === "view-breathing" && <BreathingGuide />}
-
-          {/* view-future: Vault — Future Letters, Unsent Letters, Voice Dump, Identity */}
-          {currentView === "view-future" && (
+          {/* ── view-library: Vault — Letters, Voice, Identity ── */}
+          {currentView === "view-library" && (
             <div className="view-section active">
-              <div className="future-tabs" style={{ gap: "2px" }}>
+              <div className="future-tabs">
                 {(["letters", "unsent", "voice", "identity"] as const).map((tab) => {
                   const labels: Record<string, string> = {
                     letters: "📨 Future",
@@ -958,7 +1080,6 @@ export default function Home() {
                       key={tab}
                       className={`future-tab ${vaultSubTab === tab ? "active" : ""}`}
                       onClick={() => handleToggleVaultSub(tab)}
-                      style={{ fontSize: "0.72rem", padding: "8px 4px" }}
                     >
                       {labels[tab]}
                     </button>

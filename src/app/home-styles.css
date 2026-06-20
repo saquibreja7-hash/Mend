@@ -1,0 +1,142 @@
+/* ══ HOME DASHBOARD ══ */
+
+.home-greeting {
+  padding: 4px 0 18px;
+}
+.greeting-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem; font-weight: 800;
+  letter-spacing: -0.5px; line-height: 1.15;
+  color: var(--text-primary);
+}
+.greeting-sub {
+  font-size: 0.85rem; color: var(--text-secondary);
+  margin-top: 6px; line-height: 1.5;
+}
+
+.home-section-title {
+  font-family: var(--font-head);
+  font-size: 0.95rem; font-weight: 700;
+  color: var(--text-primary);
+}
+.home-section-subtitle {
+  font-size: 0.78rem; color: var(--text-muted);
+  margin-top: 2px; margin-bottom: 10px;
+}
+
+/* Mood chips */
+.mood-section { display: flex; flex-direction: column; }
+.mood-chips-row {
+  display: flex; gap: 8px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding-bottom: 4px;
+}
+.mood-chips-row::-webkit-scrollbar { display: none; }
+.mood-chip {
+  flex-shrink: 0;
+  padding: 9px 14px; border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--text-secondary); cursor: pointer;
+  transition: var(--tr); min-height: 40px;
+  display: flex; align-items: center; gap: 5px;
+}
+.mood-chip:hover {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
+  border-color: rgba(234, 40, 4, 0.2);
+}
+.mood-chip.active {
+  background: var(--pink); color: white;
+  border-color: var(--pink);
+  box-shadow: 0 2px 12px rgba(234, 40, 4, 0.22);
+}
+
+/* Focus card */
+.focus-card {
+  background: var(--text-primary);
+  border-radius: 22px; padding: 22px;
+  display: flex; flex-direction: column; gap: 10px;
+  color: white;
+}
+.focus-badge {
+  background: var(--pink);
+  border-radius: 9999px; padding: 4px 10px;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  align-self: flex-start; color: white;
+}
+.focus-headline {
+  font-family: var(--font-head);
+  font-size: 1.35rem; font-weight: 800;
+  line-height: 1.2; letter-spacing: -0.3px;
+}
+.focus-nc-days {
+  font-size: 0.75rem; font-weight: 600;
+  opacity: 0.45; text-transform: uppercase; letter-spacing: 0.8px;
+}
+.focus-sub {
+  font-size: 0.82rem; opacity: 0.65; line-height: 1.5;
+}
+.focus-cta {
+  background: var(--pink); color: white;
+  border: none; border-radius: 9999px;
+  padding: 12px 20px; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; align-self: flex-start;
+  display: flex; align-items: center; gap: 8px;
+  transition: all 0.25s var(--ease-smooth);
+  margin-top: 4px;
+}
+.focus-cta:hover { background: var(--amber); }
+.focus-cta:active { transform: scale(0.96); }
+
+/* Quick journal tap */
+.quick-journal-tap {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 16px; cursor: pointer;
+  transition: var(--tr); text-align: left; width: 100%;
+}
+.quick-journal-tap:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(234, 40, 4, 0.2);
+}
+.quick-journal-placeholder {
+  flex-grow: 1; color: var(--text-muted); font-size: 0.9rem;
+}
+.quick-journal-arrow {
+  color: var(--text-muted); font-size: 1.1rem; flex-shrink: 0;
+}
+
+/* Journey section */
+.journey-section { display: flex; flex-direction: column; gap: 10px; }
+.journey-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.journey-view-all {
+  background: transparent; border: none;
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--pink); cursor: pointer;
+  padding: 0; transition: var(--tr); margin-top: 2px;
+}
+.journey-view-all:hover { opacity: 0.7; }
+.journey-grid {
+  display: flex; gap: 5px;
+}
+.journey-square {
+  flex: 1; height: 28px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease;
+}
+.journey-square.active { background: rgba(234, 40, 4, 0.22); }
+.journey-square.today {
+  background: var(--pink);
+  box-shadow: 0 0 8px rgba(234, 40, 4, 0.3);
+}
+.journey-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.2px;
+}
