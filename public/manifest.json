@@ -1,0 +1,24 @@
+{
+  "name": "Mend: Heartbreak Companion",
+  "short_name": "Mend",
+  "description": "A science-backed mobile companion to help you heal after heartbreak.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5fa",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
